@@ -30,7 +30,7 @@ How to use it
 
 Dead-simple install:
 
-    sudo apt-get install -y curl ; bash <(curl -s https://raw.github.com/gist/1869395/179c776758d8aae317b63fa87c447b821fb420a4/catering-college-installer)
+    sudo apt-get install -y curl ; bash <(curl -s https://github.com/Synchro/catering-college/raw/master/bootstrapper)
 
 What the above is actually doing: we create a new user (I've used 'chef') and add them to the 'sudo' group (the shortest path to sudo happiness, at least on Ubuntu Precise) and give them passwordless sudo privileges temporarily. Then, as this new user, checkout and run the script.
 
@@ -43,7 +43,7 @@ What the above is actually doing: we create a new user (I've used 'chef') and ad
     umask $U
     sudo apt-get update -q
     sudo apt-get install -q -y git-core
-    sudo su - ${NEWUSER} -c "git clone https://github.com/pikesley/catering-college ; cd catering-college ; ./install-chef-server"
+    sudo su - ${NEWUSER} -c "git clone https://github.com/Synchro/catering-college ; cd catering-college ; ./install-chef-server"
     sudo rm  /etc/sudoers.d/${NEWUSER}
 
 Caveats
