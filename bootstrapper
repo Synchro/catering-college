@@ -1,5 +1,12 @@
+#!/bin/bash
 NEWUSER=chef
 sudo useradd -m ${NEWUSER} -s /bin/bash -G sudo
-sudo apt-get update
-sudo apt-get install -y git-core
-sudo su - ${NEWUSER} -c "git clone https://github.com/pikesley/catering-college ; cd catering-college ; ./install-chef-server"
+U=`umask`
+umask 0226
+sudo echo "${NEWUSER} ALL=(ALL) NOPASSWD: ALL" |sudo tee /etc/sudoers.d/${NEWUSER} > /dev/null
+umask $U
+sudo apt-get update -q
+sudo apt-get install -q -y git-core
+#sudo su - ${NEWUSER} -c "git clone https://github.com/pikesley/catering-college ; cd catering-college ; ./install-chef-server"
+sudo su - ${NEWUSER} -c "cd /vagrant; ./install-chef-server"
+sudo rm /etc/sudoers.d/${NEWUSER}

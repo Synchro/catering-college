@@ -4,6 +4,9 @@
 # http://wiki.opscode.com/display/chef/Installing+Chef+Server+Manually
 
 #set -e
+#set -xv
+
+export DEBIAN_FRONTEND=noninteractive
 
 # needs setting on vagrant VMs for some reason
 PATH=${PATH}:/usr/local/sbin:/usr/sbin:/sbin
@@ -38,28 +41,29 @@ then
   cd /tmp
   wget http://www.rabbitmq.com/rabbitmq-signing-key-public.asc
   sudo apt-key add rabbitmq-signing-key-public.asc
+  sudo rm rabbitmq-signing-key-public.asc
 fi
 
-### # prepare Sun java debs via this witchcraft
-### # https://github.com/flexiondotorg/oab-java6
-### if [ ! -e /var/local/oab/deb/sun-java6-jre* ]
-### then
-###   cd /tmp/
-###   wget https://raw.github.com/flexiondotorg/oab-java6/master/oab-java6.sh \
-###     -O oab-java6.sh
-###   chmod +x oab-java6.sh 
-###   sudo ./oab-java6.sh
-### fi
+# Oracle Java repo
+# http://www.webupd8.org/2012/01/install-oracle-java-jdk-7-in-ubuntu-via.html
+echo "deb http://ppa.launchpad.net/webupd8team/java/ubuntu `lsb_release -cs` main" | \
+  sudo tee /etc/apt/sources.list.d/webupd8team.list > /dev/null
+gpg --keyserver keys.gnupg.net --recv-keys EEA14886
+gpg -a --export EEA14886 | sudo apt-key add -
 
 # install some packages
 sudo apt-get -y -q update
+sudo apt-get -y -q full-upgrade
+sudo apt-get -y -q install python-software-properties
 sudo apt-get -y -q install curl
+sudo apt-get -y -q install ca-certificates
 sudo apt-get -y -q install build-essential
 sudo apt-get -y -q install couchdb
 sudo apt-get -y -q install zlib1g-dev
 sudo apt-get -y -q install libxml2-dev
 sudo apt-get -y -q install nginx
-### sudo apt-get -y -q --force-yes install sun-java6-jre
+sudo apt-get -y -q install oracle-java7-installer
+sudo update-java-alternatives -s java-7-oracle
 sudo apt-get -y -q install opscode-keyring
 sudo apt-get -y -q install libgecode-dev
 sudo apt-get -y -q install rabbitmq-server
@@ -186,4 +190,7 @@ echo "Chef WebUI is at ${WEBUI}"
 echo "WebUI login: admin/${WEBUI_PASSWORD}"
 
 echo
-knife configure -i
+mkdir -p ~/.chef
+cp /etc/chef/{validation.pem,webui.pem} ~/.chef
+sudo chown -R $USER ~/.chef
+knife configure -i --defaults -y -r ~/chef-repo
